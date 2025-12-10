@@ -1,0 +1,75 @@
+<section class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-start justify-between">
+        <h1 class="text-2xl font-semibold">API Keys</h1>
+        <a href="/keys/new" class="text-sm px-3 py-1 border rounded">Create new</a>
+    </div>
+    <div class="mt-4 overflow-x-auto">
+        <table class="w-full text-left table-auto border-collapse">
+            <thead>
+                <tr class="text-xs text-gray-500 uppercase">
+                    <th class="px-3 py-2">Key</th>
+                    <th class="px-3 py-2">Owner</th>
+                    <th class="px-3 py-2">Active</th>
+                    <th class="px-3 py-2">Requests</th>
+                    <th class="px-3 py-2">Created</th>
+                    <th class="px-3 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (Array.isArray(keys) && keys.length) { %>
+                    <% keys.forEach(function(k) { %>
+                        <tr class="border-t">
+                            <td class="px-3 py-3 align-top w-1/4">
+                                <div class="flex items-center justify-between">
+                                    <code class="text-sm font-mono" id="display-<%= k.id %>">
+                                        <%= k.api_key_masked %>
+                                    </code>
+                            
+                                    <div class="flex items-center gap-2">
+                                        <!-- Reveal full key -->
+                                        <button onclick="revealKey('<%= k.id %>', this)" class="text-xs px-2 py-1 border rounded">
+                                            Show
+                                        </button>
+                            
+                                        <!-- Copy button -->
+                                        <button class="text-xs px-2 py-1 border rounded"
+                                            onclick="copyToClipboard('<%= k.api_key_plain || '' %>', this)">
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            
+                                <% if (k.api_key_plain) { %>
+                                    <p class="text-xs text-gray-400 mt-1">(Shown only for newly created key)</p>
+                                    <% } %>
+                            </td>
+                            <td class="px-3 py-3 align-top">
+                                <%= k.owner || '-' %>
+                            </td>
+                            <td class="px-3 py-3 align-top">
+                                <%= k.active ? 'Yes' : 'No' %>
+                            </td>
+                            <td class="px-3 py-3 align-top">
+                                <%= k.requests || 0 %>
+                            </td>
+                            <td class="px-3 py-3 align-top">
+                                <%= k.created_at %>
+                            </td>
+                            <td class="px-3 py-3 align-top">
+                                <form action="/keys/<%= k.id %>/revoke" method="post">
+                                    <button type="submit" class="text-sm px-3 py-1 border rounded" onclick="return confirm('Are you sure to revoke this api_key ?')">Revoke</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr class="border-t">
+                        <td class="px-3 py-3 align-top" colspan="6">
+                            No keys found
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</section>

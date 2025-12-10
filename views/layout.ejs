@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>
+        <%= title || 'API Key Manager' %>
+    </title>
+    <!-- Tailwind CDN (good for quick prototyping) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Optional: add small helper styles -->
+    <style>
+        /* keep container comfortably centered */
+        .container {
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+    <nav class="bg-white shadow">
+        <div class="container px-4 py-4 flex items-center justify-between">
+            <a href="/" class="font-semibold text-lg">API Key Manager</a>
+            <div class="space-x-3">
+                <a href="/keys" class="text-sm text-gray-600 hover:text-gray-900">Keys</a>
+                <a href="/keys/new" class="text-sm text-gray-600 hover:text-gray-900">Create Key</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container px-4 py-8">
+        <!-- Flash messages partial (if you use connect-flash / express-flash) -->
+        <%- include('partials/flash') %>
+
+            <!-- page body inserted by child views -->
+            <%- body %>
+    </main>
+
+    <footer class="mt-12 text-center text-sm text-gray-500 pb-8">
+        © <%= new Date().getFullYear() %> — Keep your API keys secret.
+    </footer>
+
+    <!-- Small client helper script for copying keys -->
+    <script>
+
+        async function revealKey(id, btn) {
+                const displayEl = document.getElementById("display-" + id);
+
+                // Add loading state
+                btn.disabled = true;
+                btn.innerText = "Loading...";
+
+                try {
+                    const res = await fetch(`/keys/${id}/reveal`);
+                    const data = await res.json();
+
+                    if (data.api_key) {
+                        displayEl.textContent = data.api_key; // show full key
+                    }
+                } catch (err) {
+                    alert("Error revealing key");
+                }
+
+                // Restore button
+                btn.disabled = false;
+                btn.innerText = "Show";
+            }
+            
+        function copyToClipboard(text, btn) {
+            if (!navigator.clipboard) {
+                // fallback
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+            } else {
+                navigator.clipboard.writeText(text);
+            }
+
+            // show a tiny tooltip or change button text briefly
+            const original = btn.innerText;
+            btn.innerText = 'Copied';
+            setTimeout(() => btn.innerText = original, 1200);
+        }
+    </script>
+</body>
+
+</html>
